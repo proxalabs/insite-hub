@@ -1,15 +1,19 @@
 name: CI
 
 on:
+  # PRs only — the deploy workflow already builds the same tree on push to main
   pull_request:
-  push:
-    branches:
-      - main
+
+# a newer push supersedes the run before it — don't pay for both
+concurrency:
+  group: ci-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       VITE_CONTACT_FUNCTION_URL: ${{ secrets.VITE_CONTACT_FUNCTION_URL }}
       VITE_NEWSLETTER_FUNCTION_URL: ${{ secrets.VITE_NEWSLETTER_FUNCTION_URL }}
