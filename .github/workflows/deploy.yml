@@ -10,10 +10,16 @@ on:
     # gets its static snapshots refreshed (Mondays 06:00 UTC)
     - cron: '0 6 * * 1'
 
+# one release at a time, but never kill a deploy that's already mid-flight
+concurrency:
+  group: deploy-${{ github.head_ref || github.ref }}
+  cancel-in-progress: false
+
 jobs:
   deploy:
     name: Deploy to Firebase Hosting
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       VITE_CONTACT_FUNCTION_URL: ${{ secrets.VITE_CONTACT_FUNCTION_URL }}
       VITE_NEWSLETTER_FUNCTION_URL: ${{ secrets.VITE_NEWSLETTER_FUNCTION_URL }}
